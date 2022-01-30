@@ -13,14 +13,13 @@ exports.checkID = (req, res, next, val) => {
 };
 
 exports.checkBody = (req, res, next) => {
-  if (req.body.hasOwnProperty('name') && req.body.hasOwnProperty('price')) {
-    next();
-  } else {
+  if (!req.body.hasOwnProperty('name') || !req.body.hasOwnProperty('price')) {
     return res.status(400).json({
       status: 'fail',
       message: 'Bad Request',
     });
   }
+  next();
 };
 
 exports.getAllTours = (req, res) => {
