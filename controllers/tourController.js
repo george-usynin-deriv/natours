@@ -12,6 +12,17 @@ exports.checkID = (req, res, next, val) => {
   next();
 };
 
+exports.checkBody = (req, res, next) => {
+  if (req.body.hasOwnProperty('name') && req.body.hasOwnProperty('price')) {
+    next();
+  } else {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'Bad Request',
+    });
+  }
+};
+
 exports.getAllTours = (req, res) => {
   res.status(200).json({
     status: 'success',
