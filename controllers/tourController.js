@@ -36,11 +36,24 @@ exports.deleteTour = (req, res) => {
   });
 };
 
-exports.createTour = (req, res) => {
-  res.status(201).json({
-    status: 'success',
-    data: {
-      // tour: newTour,
-    },
-  });
+exports.createTour = async (req, res) => {
+  // One of the methods we can create tour:
+  // const newTour = new Tour({});
+  // newTour.save();
+
+  try {
+    const newTour = await Tour.create(req.body);
+
+    res.status(201).json({
+      status: 'success',
+      data: {
+        tour: newTour,
+      },
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: 'fail',
+      message: 'Bad request!',
+    });
+  }
 };
