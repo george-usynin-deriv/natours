@@ -23,7 +23,10 @@ app.use((req, res, next) => {
   req.requestedTime = new Date().toISOString();
   next();
 });
-app.use(morgan('dev'));
+
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 
 // Middleware routes
 app.use('/api/v1/tours', tourRouter);
