@@ -3,7 +3,7 @@ const fs = require('fs');
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours.json`, 'utf8'));
 
 exports.checkID = (req, res, next, val) => {
-  if (!tours.some((tour) => tour._id === req.params.id)) {
+  if (!tours.some((tour) => tour._id === val)) {
     return res.status(404).json({
       status: 'fail',
       message: 'Invalid ID',
