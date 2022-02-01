@@ -5,7 +5,7 @@ exports.getAllTours = async (req, res) => {
     // BUILD QUERY
     // 1A) Simple filtering
     const queryObj = { ...req.query };
-    const excludedFields = ['page', 'sort', 'limit', 'fileds'];
+    const excludedFields = ['page', 'sort', 'limit', 'fields'];
     excludedFields.forEach((el) => delete queryObj[el]);
 
     // 1B) Advanced filtering
@@ -20,6 +20,15 @@ exports.getAllTours = async (req, res) => {
       query = query.sort(sortBy);
     } else {
       query = query.sort('-createdAt');
+    }
+
+    // 3) Field limiting
+    if (req.query.fields) {
+      const fields = req.query.fields.split(',').join(' ');
+      query = query.select(fields);
+    } else {
+      // Exclude field '__v', adding minus before property:
+      query = query.select('-__v');
     }
 
     // One of the methods for getting filtered tours:
