@@ -1,4 +1,5 @@
 const Tour = require('../models/tourModel');
+const APIFeatures = require('../utils/apiFeatures');
 
 exports.aliasTopTours = (req, res, next) => {
   req.query.limit = '5';
@@ -11,53 +12,54 @@ exports.getAllTours = async (req, res) => {
   try {
     // BUILD QUERY
     // 1A) Simple filtering
-    const queryObj = { ...req.query };
-    const excludedFields = ['page', 'sort', 'limit', 'fields'];
-    excludedFields.forEach((el) => delete queryObj[el]);
+    // const queryObj = { ...req.query };
+    // const excludedFields = ['page', 'sort', 'limit', 'fields'];
+    // excludedFields.forEach((el) => delete queryObj[el]);
 
     // let query = Tour.find(queryObj) - находим все документы, игнорируя ['page', 'sort', 'limit', 'fields']
 
     // 1B) Advanced filtering (находим все документы, применя фильтры (больше, меньше, больше чем, меньше чем))
-    let queryString = JSON.stringify(queryObj);
-    queryString = queryString.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+    // let queryString = JSON.stringify(queryObj);
+    // queryString = queryString.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
 
-    let query = Tour.find(JSON.parse(queryString));
+    // let query = Tour.find(JSON.parse(queryString));
 
     // 2) Sorting - если было поле sort в запросе, делаем сортировку
-    if (req.query.sort) {
-      const sortBy = req.query.sort.split(',').join(' ');
-      query = query.sort(sortBy);
-    } else {
-      query = query.sort('_id');
-    }
+    // if (req.query.sort) {
+    //   const sortBy = req.query.sort.split(',').join(' ');
+    //   query = query.sort(sortBy);
+    // } else {
+    //   query = query.sort('_id');
+    // }
 
     // 3) Field limiting - достаем только те свойства, которые мы хотим (например в запросе мы пишем fields=name,duration,difficulty)
-    if (req.query.fields) {
-      const fields = req.query.fields.split(',').join(' ');
-      query = query.select(fields);
-    } else {
-      // Exclude field '__v', adding minus before property: (убираем те поля которые мы не хотим отображать в ответе)
-      query = query.select('-__v');
-    }
+    // if (req.query.fields) {
+    //   const fields = req.query.fields.split(',').join(' ');
+    //   query = query.select(fields);
+    // } else {
+    // Exclude field '__v', adding minus before property: (убираем те поля которые мы не хотим отображать в ответе)
+    // query = query.select('-__v');
+    // }
 
     // 4) Pagination - тут происходит пагинация
-    const page = req.query.page * 1 || 1;
-    const limit = req.query.limit * 1 || 100;
-    const skip = (page - 1) * limit;
+    // const page = req.query.page * 1 || 1;
+    // const limit = req.query.limit * 1 || 100;
+    // const skip = (page - 1) * limit;
 
-    query = query.skip(skip).limit(limit); // skip - откинуть кол-во документов с начала, limit - сколько документов показать
+    // query = query.skip(skip).limit(limit); // skip - откинуть кол-во документов с начала, limit - сколько документов показать
 
     // проверка на то, если в запосе указана страница которая не существует
-    if (req.query.page) {
-      const numTours = await Tour.countDocuments();
-      if (skip >= numTours) throw new Error('This page does not exist');
-    }
+    // if (req.query.page) {
+    //   const numTours = await Tour.countDocuments();
+    //   if (skip >= numTours) throw new Error('This page does not exist');
+    // }
 
     // One of the methods for getting filtered tours:
     //const tours = await Tour.find().where('duration').equals(5).where('difficulty').equals('easy');
 
     // EXECUTE QUERY - выполняем запрос
-    const tours = await query;
+    const features = new APIFeatures(Tour.find(), req.query).filter().sort().limitFields().paginate();
+    const tours = await features.query;
 
     // SEND RESPONSE - отправляем ответ
     res.status(200).json({
