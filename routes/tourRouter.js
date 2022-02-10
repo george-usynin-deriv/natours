@@ -6,6 +6,8 @@ const router = express.Router();
 // We can add our own middleware for requested parameters (router.param)
 // router.param('id', tourController.checkID);
 
+router.route('/tour-stats').get(tourController.getTourStats);
+
 router.route('/top-5-cheap').get(tourController.aliasTopTours, tourController.getAllTours);
 
 router.route('/').get(tourController.getAllTours).post(tourController.createTour);
