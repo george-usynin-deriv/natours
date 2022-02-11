@@ -56,6 +56,10 @@ const tourSchema = mongoose.Schema(
       select: false,
     },
     startDates: [Date],
+    secretTour: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     toJSON: { virtuals: true },
@@ -77,13 +81,35 @@ tourSchema.pre('save', function (next) {
   next();
 });
 
-// tourSchema.pre('save', (next) => {
+// tourSchema.pre('save', function (next) {
 //   console.log('Will save document');
 //   next();
 // });
 
-// tourSchema.post('save', (doc, next) => {
+// tourSchema.post('save', function (doc, next) {
 //   console.log(doc);
+//   next();
+// });
+
+// QUERY MIDDLEWARE:
+
+// перед выполнением запроса мы отсеиваем секретные туры (это будет работать для всех запрсов начинающихся с find:
+// find
+// findOne
+// findOneAndDelete
+// findOneAndRemove
+// findOneAndReplace
+// findOneAndUpdate
+
+tourSchema.pre(/^find/, function (next) {
+  // tourSchema.pre('find', function (next) { - обрабатывается только find
+  this.find({ secretTour: { $ne: true } });
+  this.start = Date.now();
+  next();
+});
+
+// tourSchema.post(/^find/, function (docs, next) {
+//   console.log(`Execution time: ${Date.now() - this.start}`);
 //   next();
 // });
 
