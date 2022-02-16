@@ -53,6 +53,7 @@ exports.updateTour = async (req, res) => {
   try {
     const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
+      //runs validators in schema
       runValidators: true,
     });
 
@@ -102,7 +103,7 @@ exports.createTour = async (req, res) => {
   } catch (error) {
     res.status(400).json({
       status: 'fail',
-      message: 'Bad request!',
+      message: error,
     });
   }
 };
