@@ -59,12 +59,16 @@ exports.protect = catchAsync(async (req, res, next) => {
   }
 
   if (!token) {
-    return next(new AppError('You are not logged in! Please log in to get access'));
+    return next(new AppError('You are not logged in! Please log in to get access', 401));
   }
 
   //2) Verify token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  // console.log('decoded', decoded);
 
+  //3) Check if the user still exists
+  const currentUser = await User.findById(decoded.id);
+  if (!currentUser) {
+    return next(new AppError('The user belonging to this token does no longer exist'));
+  }
   next();
 });
