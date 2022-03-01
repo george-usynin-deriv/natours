@@ -22,6 +22,7 @@ const userSchema = mongoose.Schema({
     // hide this property in queries
     select: false,
   },
+  passwordChangedAt: Date,
   passwordConfirm: {
     type: String,
     required: [true, 'Please confirm your password'],
@@ -47,6 +48,14 @@ userSchema.pre('save', async function (next) {
 
 userSchema.methods.correctPassword = async function (candidatePassword, userPassword) {
   return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    const passwordChangedTimestamp = this.passwordChangedAt.getTime() / 1000;
+    return passwordChangedTimestamp > JWTTimestamp;
+  }
+  return false;
 };
 
 const User = mongoose.model('User', userSchema);
